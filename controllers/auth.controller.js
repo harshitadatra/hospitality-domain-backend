@@ -30,9 +30,7 @@ const registerHandler = async (req, res) => {
     const { name, address, phoneNo, email, password } = req.body;
     console.log("req.body-->", req.body)
     //name should have a have leaste theree charactere
-    try {
-
-        //validate username
+    try {//validate username
         if (name.length < 3) {
             return res.status(400).json({
                 status: "error",
@@ -105,13 +103,48 @@ const registerHandler = async (req, res) => {
         })
     }
 }
+//login handler 
 const loginHandler = async (req,res)=>
 {
-    const {username,password} = req.body;
-    try
+    const {email,password} = req.body;
+    try{
+    if(password.length < 8 && password.length>12)
     {
-        const userExist = userModel.find({username:username})
+        return res.status(400).json({
+            status:"error",
+            data:{
+                message:"Enter a valid password with at least 8 and not more than 12 characters"
+            }
+        })
+    }
 
+     const userExist  = userModel.find({email:email,password:password});
+
+     if(!userExist)
+     {
+        return res.status(400).json({
+            status:"error",
+            data:{
+                message:"icorrect username or password"
+            }
+            
+        })
+     }
+     // Set cookie with username
+    res.cookie('username', user.username, { httpOnly: true });
+
+    return res.status(201).json({ message: 'Login successful.' });
+       
+    }
+    catch(e)
+    {
+        return  res.status(500).json({
+            status:"error",
+            data:{
+                message:"Signin falied.Please try again later"
+            }
+        })
     }
 }
-module.exports = { registerHandler }
+
+module.exports = { registerHandler ,loginHandler}
